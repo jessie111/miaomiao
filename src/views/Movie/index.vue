@@ -5,7 +5,7 @@
         <div id="content">
             <div class="movie_menu">
                 <router-link class="city_name" tag="div" to="/movie/city">
-                    <span>大连</span><i class="iconfont icon-lower-triangle"></i>
+                    <span>{{ $store.state.city.nm }}</span><i class="iconfont icon-lower-triangle"></i>
                 </router-link>
                 <div class="hot_swtich">
                     <router-link class="hot_item" tag="div" to="/movie/nowPlaying">正在热映</router-link>
@@ -20,17 +20,60 @@
             </keep-alive>
         </div>
         <TabBar></TabBar>
+
     </div>
 </template>
 
 <script>
     import Header from '@/components/Header'
     import TabBar from "@/components/TabBar"
+    import { messageBox} from "../../components/JS";
+
     export default {
         name: "Movie",
         components:{
             Header,
-            TabBar
+            TabBar,
+        },
+        mounted() {
+            setTimeout(()=>{
+                this.axios.get('/api/getLocation').then((res)=>{
+                    var msg = res.data.msg;
+
+                    if(msg === 'ok'){
+                        var nm = res.data.data.nm;
+                        var id = res.data.data.id;
+                        if(this.$store.state.city.id == id){
+                            return
+                        }
+                        messageBox({
+                            title:'定位',
+                            content: nm ,
+                            cancel:'取消',
+                            ok:'切换定位',
+                            handleOk() {
+                                window.localStorage.setItem('nowNm',nm);
+                                window.localStorage.setItem('nowId',id);
+                                window.location.reload();
+
+                            }
+                        })
+                    }
+                })
+            },3000);
+
+           /* messageBox({
+                title:'定位1',
+                content:'你好',
+                cancel:'取消',
+                ok:'切换定位',
+                handleCancel() {
+                    console.log(1);
+                },
+                handleOk() {
+                    console.log(2);
+                }
+            })*/
         }
     }
 
